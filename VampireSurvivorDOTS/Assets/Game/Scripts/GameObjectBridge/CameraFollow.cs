@@ -35,7 +35,7 @@ namespace Game.Scripts.GameObjectBridge
 
         private void OnDestroy()
         {
-            if (_playerQuery != null) _playerQuery.Dispose();
+            _playerQuery.Dispose();
         }
     }
 }
