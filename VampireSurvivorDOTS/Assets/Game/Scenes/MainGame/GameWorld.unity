@@ -143,7 +143,7 @@ PrefabInstance:
     - target: {fileID: 4595849486193389409, guid: 03f67c756187b5c478e3a3f34966f241,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4595849486193389409, guid: 03f67c756187b5c478e3a3f34966f241,
         type: 3}
@@ -213,6 +213,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   moveSpeed: 5
+  maxHealth: 100
+  collisionRadius: 0.5
 --- !u!1 &1724301743
 GameObject:
   m_ObjectHideFlags: 0
