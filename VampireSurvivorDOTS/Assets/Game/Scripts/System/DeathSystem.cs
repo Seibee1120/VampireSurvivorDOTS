@@ -1,4 +1,5 @@
 using Game.Scripts.Components;
+using Game.Scripts.Components.Tags;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
@@ -6,6 +7,7 @@ using Unity.Entities;
 namespace Game.Scripts.System
 {
     [BurstCompile]
+    [UpdateAfter(typeof(DamageSystem))]
     public partial struct DeathSystem : ISystem
     {
         [BurstCompile]
@@ -18,7 +20,21 @@ namespace Game.Scripts.System
         public void OnUpdate(ref SystemState state)
         {
             var ecb = new EntityCommandBuffer(Allocator.Temp);
-            foreach (var (health, entity) in SystemAPI.Query<RefRO<Health>>().WithEntityAccess())
+
+            // 玩家死亡：不销毁，标记 GameOverTag
+            foreach (var (health, entity) in SystemAPI.Query<RefRO<Health>>()
+                         .WithAll<PlayerTag>()
+                         .WithNone<GameOverTag>()
+                         .WithEntityAccess())
+            {
+                if (health.ValueRO.Value > 0f) continue;
+                ecb.AddComponent<GameOverTag>(entity);
+            }
+
+            // 其它实体死亡：销毁
+            foreach (var (health, entity) in SystemAPI.Query<RefRO<Health>>()
+                         .WithNone<PlayerTag>()
+                         .WithEntityAccess())
             {
                 if (health.ValueRO.Value > 0f) continue;
                 ecb.DestroyEntity(entity);
