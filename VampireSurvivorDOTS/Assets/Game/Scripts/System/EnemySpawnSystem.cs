@@ -24,7 +24,7 @@ namespace Game.Scripts.System
             var ecb = new EntityCommandBuffer(Allocator.Temp);
             var random = new Random((uint)(SystemAPI.Time.ElapsedTime * 1000 + 1));
 
-            // Get player position
+            // 拿玩家位置
             var playerQuery = SystemAPI.QueryBuilder().WithAll<PlayerTag, LocalTransform>().Build();
             if (!playerQuery.TryGetSingleton<LocalTransform>(out var playerTransform))
             {
@@ -34,7 +34,7 @@ namespace Game.Scripts.System
 
             var playerPosition = playerTransform.Position;
 
-            // Get spawn config singleton
+            // 拿敌人生成器
             if (!SystemAPI.TryGetSingletonRW<EnemySpawnConfig>(out var config) ||
                 config.ValueRO.EnemyPrefab == Entity.Null)
             {
@@ -42,17 +42,17 @@ namespace Game.Scripts.System
                 return;
             }
 
-            // Update timer and elapsed time
+            // 更新敌人生成器的计时器
             config.ValueRW.Timer -= dt;
             config.ValueRW.ElapsedTime += dt;
 
             if (config.ValueRO.Timer <= 0f)
             {
-                // Spawn enemies
+                // 生成敌人
                 var spawnCount = config.ValueRO.SpawnCount;
                 for (var i = 0; i < spawnCount; i++)
                 {
-                    // Random direction on XZ plane
+                    // 玩家四周随机位置
                     var angle = random.NextFloat(0f, math.PI * 2f);
                     var direction = new float3(math.cos(angle), 0f, math.sin(angle));
                     var spawnPosition = playerPosition + direction * config.ValueRO.SpawnDistance;
@@ -62,7 +62,7 @@ namespace Game.Scripts.System
                     ecb.AddComponent(enemy, new RandomState { Value = new Random(random.NextUInt()) });
                 }
 
-                // Difficulty scaling: every 60 seconds, increase difficulty
+                // 难度随时间提升
                 var elapsedMinutes = config.ValueRO.ElapsedTime / 60f;
                 var newInterval = math.max(config.ValueRO.MinSpawnInterval,
                     config.ValueRO.BaseSpawnInterval - elapsedMinutes * config.ValueRO.IntervalDecayRate);
